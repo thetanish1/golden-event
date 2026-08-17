@@ -92,19 +92,24 @@
   to   { opacity: 1; }
 }
 
-/* ── Cursor glow ─────────────────────────────────────────────────── */
-.cursor-glow {
-  position: fixed;
-  pointer-events: none;
-  z-index: 9999;
-  border-radius: 50%;
-  mix-blend-mode: screen;
-  transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
-  will-change: transform;
+/* ── Star cursor particle trail ──────────────────────────────────── */
+@keyframes starFly {
+  0% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  60% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.1) rotate(var(--rot));
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cursor-glow { display: none !important; }
+  /* star spans are injected inline — block them if reduced motion */
+  body > span[style*="starFly"] { display: none !important; }
 }
 
 /* ── Floating WhatsApp button pulse ──────────────────────────────── */
