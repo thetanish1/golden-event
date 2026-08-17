@@ -13,7 +13,7 @@ export default function ServiceCard({ service, index }) {
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.5, delay: index * 0.08 }}
       whileHover={{ y: -6, transition: { duration: 0.25 } }}
-      className="group relative flex flex-col p-7 rounded-2xl overflow-hidden cursor-default"
+      className="group relative flex flex-col p-4 sm:p-7 rounded-2xl overflow-hidden cursor-default"
       data-hover="true"
       style={{
         background: 'rgba(20,20,20,0.8)',
@@ -39,31 +39,36 @@ export default function ServiceCard({ service, index }) {
 
       {/* Icon */}
       <div
-        className="relative w-14 h-14 rounded-xl flex items-center justify-center mb-5 transition-all duration-300 group-hover:shadow-gold-sm"
+        className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center mb-3 sm:mb-5 transition-all duration-300 group-hover:shadow-gold-sm"
         style={{
           background: 'rgba(212,175,55,0.1)',
           border: '1px solid rgba(212,175,55,0.2)',
         }}
       >
         <Icon
+          size={20}
+          className="text-gold-500 group-hover:text-gold-300 transition-colors duration-300 sm:hidden"
+          strokeWidth={1.5}
+        />
+        <Icon
           size={26}
-          className="text-gold-500 group-hover:text-gold-300 transition-colors duration-300"
+          className="text-gold-500 group-hover:text-gold-300 transition-colors duration-300 hidden sm:block"
           strokeWidth={1.5}
         />
       </div>
 
       {/* Title */}
-      <h3 className="font-display font-semibold text-lg text-charcoal-50 mb-2 leading-snug group-hover:text-gold-300 transition-colors duration-300">
+      <h3 className="font-display font-semibold text-sm sm:text-lg text-charcoal-50 mb-1 sm:mb-2 leading-snug group-hover:text-gold-300 transition-colors duration-300">
         {service.title}
       </h3>
 
       {/* Description */}
-      <p className="font-body text-sm text-charcoal-400 leading-relaxed flex-1">
+      <p className="font-body text-xs sm:text-sm text-charcoal-400 leading-relaxed flex-1">
         {service.shortDesc}
       </p>
 
       {/* Gold underline accent */}
-      <div className="mt-5 w-8 h-0.5 bg-gold-gradient rounded-full group-hover:w-full transition-all duration-500 ease-out" />
+      <div className="mt-3 sm:mt-5 w-8 h-0.5 bg-gold-gradient rounded-full group-hover:w-full transition-all duration-500 ease-out" />
     </motion.article>
   );
 }

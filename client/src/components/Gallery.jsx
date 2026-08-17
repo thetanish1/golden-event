@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getGallery } from '../services/api';
 import { SERVICE_CATEGORIES } from '../data/services';
 import GalleryLightbox from './GalleryLightbox';
@@ -23,10 +24,13 @@ const FALLBACK = [
   { id: 15, category: 'Baby Shower',        src: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80', alt: 'Pastel baby shower setup' },
 ];
 
+const MOBILE_PAGE_SIZE = 4; // 2×2 grid per page on mobile
+
 export default function Gallery() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [images, setImages]     = useState(FALLBACK);
   const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [mobilePage, setMobilePage] = useState(0);
 
   useEffect(() => {
     getGallery(activeCategory)
@@ -34,14 +38,28 @@ export default function Gallery() {
       .catch(() => setImages(FALLBACK));
   }, [activeCategory]);
 
+  // Reset page when category or images change
+  useEffect(() => {
+    setMobilePage(0);
+  }, [activeCategory, images]);
+
   const filtered = activeCategory === 'All'
     ? images
     : images.filter((img) => img.category === activeCategory);
 
-  const openLightbox = (idx)  => setLightboxIndex(idx);
-  const closeLightbox = ()    => setLightboxIndex(null);
+  const totalMobilePages = Math.ceil(filtered.length / MOBILE_PAGE_SIZE);
+  const mobileImages = filtered.slice(
+    mobilePage * MOBILE_PAGE_SIZE,
+    mobilePage * MOBILE_PAGE_SIZE + MOBILE_PAGE_SIZE
+  );
+
+  const openLightbox = (idx) => setLightboxIndex(idx);
+  const closeLightbox = ()   => setLightboxIndex(null);
   const prevImage = () => setLightboxIndex((i) => (i - 1 + filtered.length) % filtered.length);
   const nextImage = () => setLightboxIndex((i) => (i + 1) % filtered.length);
+
+  const prevPage = useCallback(() => setMobilePage((p) => Math.max(0, p - 1)), []);
+  const nextPage = useCallback(() => setMobilePage((p) => Math.min(totalMobilePages - 1, p + 1)), [totalMobilePages]);
 
   return (
     <section id="gallery" className="section-pad bg-charcoal-900 relative overflow-hidden">
@@ -87,10 +105,101 @@ export default function Gallery() {
           ))}
         </div>
 
-        {/* Image grid */}
+        {/* ── MOBILE: paginated 2×2 grid (hidden on md+) ───────────── */}
+        <div className="md:hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${activeCategory}-${mobilePage}`}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-2 gap-3"
+            >
+              {mobileImages.map((img) => {
+                // Real index in filtered array for lightbox
+                const realIdx = filtered.findIndex((f) => f.id === img.id);
+                return (
+                  <button
+                    key={img.id}
+                    className="group relative overflow-hidden rounded-xl aspect-square cursor-pointer border border-transparent hover:border-gold-500/40 hover:shadow-gold-sm transition-all duration-300"
+                    onClick={() => openLightbox(realIdx)}
+                    aria-label={`View: ${img.alt}`}
+                  >
+                    <img
+                      src={img.src}
+                      alt={img.alt}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-charcoal-950/0 group-hover:bg-charcoal-950/40 transition-all duration-300 flex items-center justify-center">
+                      <span className="text-white text-xs font-body font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 px-3 py-1.5 rounded-full bg-charcoal-950/70 border border-gold-500/40">
+                        View
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Pagination controls */}
+          {totalMobilePages > 1 && (
+            <div className="flex items-center justify-center gap-4 mt-6">
+              {/* Prev */}
+              <button
+                onClick={prevPage}
+                disabled={mobilePage === 0}
+                aria-label="Previous page"
+                className="w-9 h-9 rounded-full flex items-center justify-center border border-gold-700/40 text-gold-500 disabled:opacity-30 disabled:cursor-not-allowed hover:border-gold-400 hover:bg-gold-500/10 transition-all duration-200"
+              >
+                <ChevronLeft size={18} />
+              </button>
+
+              {/* Dot indicators */}
+              <div className="flex gap-2">
+                {Array.from({ length: totalMobilePages }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setMobilePage(i)}
+                    aria-label={`Page ${i + 1}`}
+                    className="transition-all duration-300"
+                  >
+                    <span
+                      className={`block rounded-full transition-all duration-300 ${
+                        i === mobilePage
+                          ? 'w-5 h-2 bg-gold-400'
+                          : 'w-2 h-2 bg-charcoal-600 hover:bg-gold-600'
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+
+              {/* Next */}
+              <button
+                onClick={nextPage}
+                disabled={mobilePage === totalMobilePages - 1}
+                aria-label="Next page"
+                className="w-9 h-9 rounded-full flex items-center justify-center border border-gold-700/40 text-gold-500 disabled:opacity-30 disabled:cursor-not-allowed hover:border-gold-400 hover:bg-gold-500/10 transition-all duration-200"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          )}
+
+          {/* Page count label */}
+          {totalMobilePages > 1 && (
+            <p className="text-center text-charcoal-500 text-xs mt-2 font-body">
+              {mobilePage + 1} / {totalMobilePages}
+            </p>
+          )}
+        </div>
+
+        {/* ── DESKTOP: full masonry grid (hidden on mobile) ─────────── */}
         <motion.div
           layout
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
+          className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-3"
         >
           <AnimatePresence mode="popLayout">
             {filtered.map((img, idx) => (
