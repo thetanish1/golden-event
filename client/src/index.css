@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base resets ─────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-charcoal-950 text-charcoal-100 font-body;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: rgba(212, 175, 55, 0.35);
+    color: #F5D67A;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #0B0B0D; }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #D4AF37, #8A6D1F);
+    border-radius: 3px;
+  }
+}
+
+/* ── Utility classes ─────────────────────────────────────────────── */
+@layer utilities {
+  /* Gold gradient text */
+  .text-gold-gradient {
+    background: linear-gradient(135deg, #F5D67A 0%, #D4AF37 40%, #F5D67A 70%, #8A6D1F 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite;
+  }
+
+  /* Shimmer animation for gradient text */
+  @keyframes shimmer {
+    0%   { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* Thin gold divider */
+  .gold-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #D4AF37 30%, #F5D67A 50%, #D4AF37 70%, transparent 100%);
+  }
+
+  /* Gold border glow */
+  .border-gold-glow {
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.1) inset;
+  }
+
+  /* Glass card */
+  .glass-card {
+    background: rgba(20, 20, 20, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(212, 175, 55, 0.15);
+  }
+
+  /* Section padding */
+  .section-pad {
+    @apply py-20 lg:py-28;
+  }
+
+  /* Container */
+  .container-lg {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* ── Page fade-in ────────────────────────────────────────────────── */
+#root {
+  animation: pageFadeIn 0.6s ease forwards;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Cursor glow ─────────────────────────────────────────────────── */
+.cursor-glow {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-glow { display: none !important; }
+}
+
+/* ── Floating WhatsApp button pulse ──────────────────────────────── */
+.whatsapp-pulse::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: rgba(37, 211, 102, 0.4);
+  animation: waPulse 2s ease-out infinite;
+}
+
+@keyframes waPulse {
+  0%   { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* ── Gallery lightbox ────────────────────────────────────────────── */
+.lightbox-overlay {
+  animation: lightboxIn 0.25s ease forwards;
+}
+@keyframes lightboxIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Number count-up text ────────────────────────────────────────── */
+.stat-number {
+  font-variant-numeric: tabular-nums;
+}
